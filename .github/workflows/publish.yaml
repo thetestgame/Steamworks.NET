@@ -1,0 +1,29 @@
+name: Build and Publish NuGet Package
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Build project
+      run: dotnet build -t:BatchBuild ./Standalone/Steamworks.NET.Standard.sln
+
+    - name: Create NuGet package
+      run: nuget pack ./Standalone/Steamworks.NET.nuspec -OutputDirectory bin/ -Version ${{ github.ref_name }}
+
+    - name: Publish NuGet package
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ./bin/Steamworks.NET.${{ github.ref_name }}.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
