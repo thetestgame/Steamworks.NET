@@ -24,3 +24,6 @@ jobs:
 
     - name: Push tags to origin
       run: git push origin --tags
+
+    # Keep the workflow alive
+    - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
