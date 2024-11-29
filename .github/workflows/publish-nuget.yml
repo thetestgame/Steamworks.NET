@@ -26,17 +26,18 @@ jobs:
           choco install nuget -y
           nuget update -self
 
-      # Extract the version from the tag
+        # Extract the version from the tag
       - name: Extract version from tag
         id: get_version
-        run: echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      # Build binaries
+        # Build and Package binaries
       - name: Build and Package binaries
-        run: | 
-            $version="${{ steps.get_version.outputs.version }}"
-            dotnet build -t:BatchBuild Standalone/Steamworks.NET.Standard.sln
-            nuget pack Standalone/Steamworks.NET.nuspec -OutputDirectory bin\ /p:Version=$version
+        env:
+            VERSION: ${{ env.version }}
+        run: |
+            dotnet build -t:BatchBuild Standalone/Steamworks.NET.Standard.sln /p:Version=$VERSION
+            nuget pack Standalone/Steamworks.NET.nuspec -OutputDirectory bin\ -Version=$VERSION
 
       # Publish the NuGet package
       - name: Publish to NuGet
