@@ -27,17 +27,19 @@ jobs:
           nuget update -self
 
         # Extract the version from the tag
-      - name: Extract version from tag
-        id: get_version
-        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Extract tag name
+        id: tag
+        uses: actions/github-script@0.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            return context.payload.ref.replace(/\/refs\/tags\//, '');
 
         # Build and Package binaries
       - name: Build and Package binaries
-        env:
-            VERSION: ${{ env.version }}
         run: |
-            dotnet build -t:BatchBuild Standalone/Steamworks.NET.Standard.sln /p:Version=$VERSION
-            nuget pack Standalone/Steamworks.NET.nuspec -OutputDirectory bin\ -Version=$VERSION
+            dotnet build -t:BatchBuild Standalone/Steamworks.NET.Standard.sln /p:Version=${{ steps.tag.outputs.result }}
+            nuget pack Standalone/Steamworks.NET.nuspec -OutputDirectory bin\ -Version ${{ steps.tag.outputs.result }}
 
       # Publish the NuGet package
       - name: Publish to NuGet
