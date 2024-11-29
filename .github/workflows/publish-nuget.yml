@@ -35,7 +35,7 @@ jobs:
       - name: Build and Package binaries
         run: | 
             $version="${{ steps.get_version.outputs.version }}"
-            (Get-Content Steamworks.NET.nuspec) -replace '<version>.*?</version>', "<version>$version</version>" | Set-Content Standalone/Steamworks.NET.nuspec
+            (Get-Content Standalone/Steamworks.NET.nuspec) -replace '<version>.*?</version>', "<version>$version</version>" | Set-Content Standalone/Steamworks.NET.nuspec
 
             dotnet build -t:BatchBuild Standalone/Steamworks.NET.Standard.sln
             nuget pack Standalone/Steamworks.NET.nuspec -OutputDirectory bin\
