@@ -26,20 +26,11 @@ jobs:
           choco install nuget -y
           nuget update -self
 
-        # Extract the version from the tag
-      - name: Extract tag name
-        id: tag
-        uses: actions/github-script@0.2.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            return context.payload.ref.replace(/\/refs\/tags\//, '');
-
         # Build and Package binaries
       - name: Build and Package binaries
         run: |
-            dotnet build -t:BatchBuild Standalone/Steamworks.NET.Standard.sln /p:Version=${{ steps.tag.outputs.result }}
-            nuget pack Standalone/Steamworks.NET.nuspec -OutputDirectory bin\ -Version ${{ steps.tag.outputs.result }}
+            dotnet build -t:BatchBuild Standalone/Steamworks.NET.Standard.sln /p:Version=$GITHUB_REF_NAME
+            nuget pack Standalone/Steamworks.NET.nuspec -OutputDirectory bin\ -Version $GITHUB_REF_NAME
 
       # Publish the NuGet package
       - name: Publish to NuGet
